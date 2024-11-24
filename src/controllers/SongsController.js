@@ -1,10 +1,11 @@
+import { StatusCodes } from 'http-status-codes';
 import { readSongsFile, writeSongsFile } from '../utils/fileOperations.js';
 
 const createSong = async (req, res) => {
   const newSong = req.body;
 
   if (!newSong || !newSong.titulo || !newSong.artista || !newSong.tono) {
-    return res.status(400).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       error: 'Canción invalida',
     });
   }
@@ -22,12 +23,12 @@ const createSong = async (req, res) => {
 
   await writeSongsFile(songList);
 
-  return res.status(201).json({});
+  return res.status(StatusCodes.CREATED).json({ message: 'Canción creada exitosamente' });
 };
 
 const getSongs = async (_, res) => {
   const songs = (await readSongsFile()) || [];
-  return res.status(200).json(songs);
+  return res.status(StatusCodes.OK).json(songs);
 };
 
 const editSong = async (req, res) => {
@@ -35,7 +36,7 @@ const editSong = async (req, res) => {
   const editedSong = req.body;
 
   if (!editedSong || !editedSong.titulo || !editedSong.artista || !editedSong.tono) {
-    return res.status(400).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       error: 'Canción invalida',
     });
   }
@@ -45,7 +46,7 @@ const editSong = async (req, res) => {
   const songIndex = songs.findIndex((song) => song.id === id);
 
   if (songIndex < 0) {
-    return res.status(404).json({
+    return res.status(StatusCodes.NOT_FOUND).json({
       error: `No existe canción con id: ${id}`,
     });
   }
@@ -56,7 +57,7 @@ const editSong = async (req, res) => {
 
   await writeSongsFile(songs);
 
-  return res.status(201).json(songs);
+  return res.status(StatusCodes.CREATED).json(songs);
 };
 
 const deleteSong = async (req, res) => {
@@ -66,7 +67,7 @@ const deleteSong = async (req, res) => {
   const updatedSongs = songs.filter((song) => song.id !== id);
   await writeSongsFile(updatedSongs);
 
-  return res.status(200).json(updatedSongs);
+  return res.status(StatusCodes.OK).json(updatedSongs);
 };
 
 export { createSong, getSongs, editSong, deleteSong };
